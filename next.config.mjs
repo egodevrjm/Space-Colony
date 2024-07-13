@@ -16,6 +16,7 @@ const nextConfig = {
         },
       ]
     },
-  }
+    // Add any other configurations you need here
+  };
   
-  module.exports = nextConfig
+  module.exports = nextConfig;
