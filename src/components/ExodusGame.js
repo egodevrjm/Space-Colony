@@ -300,8 +300,8 @@ const ExodusGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-900 to-black text-white p-6 flex flex-col overflow-auto bg-cover bg-center">
-      <div className="absolute inset-0 bg-black opacity-50"></div>
+    <div className="min-h-screen bg-cover bg-center text-white p-6 flex flex-col overflow-auto relative" style={{ backgroundImage: "url('/path-to-your-background-image.jpg')" }}>
+      <div className="absolute inset-0 bg-black opacity-70"></div>
       <div className="relative z-10 w-full max-w-7xl mx-auto">
         <h1 className="text-5xl font-bold mb-6 text-center text-blue-300 tracking-wider">
           Exodus: The Last Colony
