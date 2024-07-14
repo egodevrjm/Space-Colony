@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GameIcons from './GameIcons';
+import 'tailwindcss/tailwind.css';
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = [
@@ -299,29 +300,29 @@ const ExodusGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-2 sm:p-4 md:p-6 flex flex-col overflow-auto bg-[url('/space-background.jpg')] bg-cover bg-center">
+    <div className="min-h-screen bg-gradient-to-r from-purple-900 to-black text-white p-6 flex flex-col overflow-auto bg-cover bg-center">
       <div className="absolute inset-0 bg-black opacity-50"></div>
       <div className="relative z-10 w-full max-w-7xl mx-auto">
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-center text-blue-300 tracking-wider">
+        <h1 className="text-5xl font-bold mb-6 text-center text-blue-300 tracking-wider">
           Exodus: The Last Colony
         </h1>
 
         {showTutorial && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-800 p-4 sm:p-6 md:p-8 rounded-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full">
-              <h2 className="text-xl sm:text-2xl font-bold mb-4">Tutorial</h2>
-              <p className="mb-4 text-sm sm:text-base">{tutorialSteps[tutorialStep]}</p>
+            <div className="bg-gray-800 p-8 rounded-lg max-w-2xl w-full shadow-xl">
+              <h2 className="text-2xl font-bold mb-4">Tutorial</h2>
+              <p className="mb-4">{tutorialSteps[tutorialStep]}</p>
               <div className="flex justify-between items-center">
                 <button 
-                  className="px-3 py-1 sm:px-4 sm:py-2 bg-gray-600 hover:bg-gray-500 rounded text-sm sm:text-base"
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded"
                   onClick={() => setTutorialStep(Math.max(0, tutorialStep - 1))}
                   disabled={tutorialStep === 0}
                 >
                   Previous
                 </button>
-                <span className="text-sm sm:text-base">{tutorialStep + 1} / {tutorialSteps.length}</span>
+                <span>{tutorialStep + 1} / {tutorialSteps.length}</span>
                 <button 
-                  className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-500 hover:bg-blue-400 rounded text-sm sm:text-base"
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded"
                   onClick={nextTutorialStep}
                 >
                   {tutorialStep < tutorialSteps.length - 1 ? "Next" : "Start Game"}
@@ -331,33 +332,33 @@ const ExodusGame = () => {
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Colony Status</h2>
-            <p className="text-base sm:text-lg mb-2">Phase: <span className="text-yellow-300">{PHASES[currentPhase]}</span></p>
-            <p className="text-base sm:text-lg mb-2">Turn: <span className="text-yellow-300">{turn}</span></p>
-            <p className="flex items-center text-base sm:text-lg mb-2">
-              <span className="mr-2 text-xl sm:text-2xl">👥</span> Colonists: {colonists.total} 
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Colony Status</h2>
+            <p className="text-lg mb-2">Phase: <span className="text-yellow-300">{PHASES[currentPhase]}</span></p>
+            <p className="text-lg mb-2">Turn: <span className="text-yellow-300">{turn}</span></p>
+            <p className="flex items-center text-lg mb-2">
+              <span className="mr-2 text-2xl">👥</span> Colonists: {colonists.total} 
               (<span className="text-purple-300">🧑‍🔬 {colonists.scientists}</span> | 
               <span className="text-yellow-300">🧑‍🔧 {colonists.engineers}</span> | 
               <span className="text-red-300">🧑‍⚕️ {colonists.medics}</span>)
             </p>
-            <div className="grid grid-cols-2 gap-2 sm:gap-4 mt-4">
+            <div className="grid grid-cols-2 gap-4 mt-4">
               {Object.entries(resources).map(([resource, amount]) => (
-                <div key={resource} className="bg-gray-700 rounded-lg p-2 sm:p-3 flex items-center justify-between">
-                  <span className="text-xl sm:text-2xl mr-2">{getBuildingIcon(resource)}</span>
-                  <span className="text-base sm:text-lg">{resource.charAt(0).toUpperCase() + resource.slice(1)}: {amount}</span>
+                <div key={resource} className="bg-gray-800 rounded-lg p-4 flex items-center justify-between">
+                  <span className="text-2xl mr-2">{getBuildingIcon(resource)}</span>
+                  <span className="text-lg">{resource.charAt(0).toUpperCase() + resource.slice(1)}: {amount}</span>
                 </div>
               ))}
             </div>
             <button
-              className="mt-4 px-3 py-1 sm:px-4 sm:py-2 bg-blue-500 hover:bg-blue-400 rounded w-full text-sm sm:text-base"
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded w-full"
               onClick={() => setShowResourceDetails(!showResourceDetails)}
             >
               {showResourceDetails ? "Hide" : "Show"} Resource Details
             </button>
             {showResourceDetails && (
-              <div className="mt-4 bg-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base">
+              <div className="mt-4 bg-gray-800 rounded-lg p-4">
                 <h3 className="font-bold mb-2">Production per Turn:</h3>
                 {Object.entries(calculateResourceProduction()).map(([resource, amount]) => (
                   <p key={resource}>{resource.charAt(0).toUpperCase() + resource.slice(1)}: +{amount}</p>
@@ -370,26 +371,26 @@ const ExodusGame = () => {
             )}
             <div className="mt-4 space-y-2">
               <div>
-                <p className="flex items-center mb-1 text-sm sm:text-base">
-                  <span className="mr-2 text-xl sm:text-2xl">😊</span> Happiness: 
+                <p className="flex items-center mb-1">
+                  <span className="mr-2 text-2xl">😊</span> Happiness: 
                 </p>
-                <div className="w-full bg-gray-700 rounded-full h-3 sm:h-4">
-                  <div className="bg-green-600 h-3 sm:h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${happiness}%`}}></div>
+                <div className="w-full bg-gray-700 rounded-full h-4">
+                  <div className="bg-green-600 h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${happiness}%`}}></div>
                 </div>
               </div>
               <div>
-                <p className="flex items-center mb-1 text-sm sm:text-base">
-                  <span className="mr-2 text-xl sm:text-2xl">❤️</span> Health: 
+                <p className="flex items-center mb-1">
+                  <span className="mr-2 text-2xl">❤️</span> Health: 
                 </p>
-                <div className="w-full bg-gray-700 rounded-full h-3 sm:h-4">
-                  <div className="bg-red-600 h-3 sm:h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${health}%`}}></div>
+                <div className="w-full bg-gray-700 rounded-full h-4">
+                  <div className="bg-red-600 h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${health}%`}}></div>
                 </div>
               </div>
             </div>
           </div>
           
-          <div className="lg:col-span-2 bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Colony Map</h2>
+          <div className="lg:col-span-2 bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Colony Map</h2>
             <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-1">
               {grid.map((row, rowIndex) => (
                 row.map((cell, colIndex) => (
@@ -406,14 +407,14 @@ const ExodusGame = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Research</h2>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Research</h2>
+            <div className="grid grid-cols-2 gap-3">
               {Object.entries(TECHS).map(([tech, { name, effect, cost }]) => (
                 <button 
                   key={tech}
-                  className={`px-2 py-1 sm:px-3 sm:py-2 rounded ${techs[tech] ? 'bg-green-600' : 'bg-green-500'} hover:bg-green-400 text-left transition-all duration-200 transform hover:scale-105 text-xs sm:text-sm`}
+                  className={`px-3 py-2 rounded ${techs[tech] ? 'bg-green-600' : 'bg-green-500'} hover:bg-green-400 text-left transition-all duration-200 transform hover:scale-105`}
                   onClick={() => researchTech(tech)}
                   disabled={techs[tech]}
                 >
@@ -424,52 +425,52 @@ const ExodusGame = () => {
               ))}
             </div>
             <button 
-              className="mt-4 px-3 py-1 sm:px-4 sm:py-2 bg-blue-500 hover:bg-blue-400 rounded transition-all duration-200 transform hover:scale-105 w-full text-sm sm:text-base"
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded transition-all duration-200 transform hover:scale-105 w-full"
               onClick={() => setShowTechInfo(!showTechInfo)}
             >
               {showTechInfo ? '🔼 Hide' : '🔽 Show'} Tech Info
             </button>
           </div>
           
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Build</h2>
-            <div className="grid grid-cols-2 gap-2 sm:gap-3">
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Build</h2>
+            <div className="grid grid-cols-2 gap-3">
               {BUILDING_TYPES.map(({ type, cost }) => (
                 <button 
                   key={type}
-                  className={`px-2 py-1 sm:px-3 sm:py-2 rounded flex items-center justify-center ${selectedBuilding === type ? 'bg-blue-600' : 'bg-blue-500'} hover:bg-blue-400 transition-all duration-200 transform hover:scale-105 text-xs sm:text-sm`}
+                  className={`px-3 py-2 rounded flex items-center justify-center ${selectedBuilding === type ? 'bg-blue-600' : 'bg-blue-500'} hover:bg-blue-400 transition-all duration-200 transform hover:scale-105`}
                   onClick={() => setSelectedBuilding(type)}
                 >
-                  <span className="mr-1 sm:mr-2 text-xl sm:text-2xl">{getBuildingIcon(type)}</span>
+                  <span className="mr-2 text-2xl">{getBuildingIcon(type)}</span>
                   <span className="capitalize">{type} ({cost} materials)</span>
                 </button>
               ))}
             </div>
           </div>
           
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Recruit Colonists</h2>
-            <div className="space-y-2 sm:space-y-3">
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Recruit Colonists</h2>
+            <div className="space-y-3">
               <button 
-                className="bg-green-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-green-400 transition-all duration-200 transform hover:scale-105 w-full text-xs sm:text-sm"
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400 transition-all duration-200 transform hover:scale-105 w-full"
                 onClick={() => addColonist('general')}
               >
                 Add General Colonist (10 food, 10 oxygen)
               </button>
               <button 
-                className="bg-purple-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-purple-400 transition-all duration-200 transform hover:scale-105 w-full text-xs sm:text-sm"
+                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-400 transition-all duration-200 transform hover:scale-105 w-full"
                 onClick={() => addColonist('scientist')}
               >
                 Add Scientist (15 food, 15 oxygen)
               </button>
               <button 
-                className="bg-yellow-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-yellow-400 transition-all duration-200 transform hover:scale-105 w-full text-xs sm:text-sm"
+                className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-400 transition-all duration-200 transform hover:scale-105 w-full"
                 onClick={() => addColonist('engineer')}
               >
                 Add Engineer (15 food, 15 oxygen)
               </button>
               <button 
-                className="bg-red-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-red-400 transition-all duration-200 transform hover:scale-105 w-full text-xs sm:text-sm"
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400 transition-all duration-200 transform hover:scale-105 w-full"
                 onClick={() => addColonist('medic')}
               >
                 Add Medic (15 food, 15 oxygen)
@@ -478,66 +479,66 @@ const ExodusGame = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Missions</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Missions</h2>
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
               <button 
-                className="flex-1 bg-indigo-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-indigo-400 transition-all duration-200 transform hover:scale-105 text-xs sm:text-sm"
+                className="flex-1 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-400 transition-all duration-200 transform hover:scale-105"
                 onClick={() => startMission('Exploration')}
               >
                 Start Exploration Mission
               </button>
               <button 
-                className="flex-1 bg-pink-500 text-white px-3 py-1 sm:px-4 sm:py-2 rounded hover:bg-pink-400 transition-all duration-200 transform hover:scale-105 text-xs sm:text-sm"
+                className="flex-1 bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-400 transition-all duration-200 transform hover:scale-105"
                 onClick={() => startMission('Research')}
               >
                 Start Research Mission
               </button>
             </div>
             <div>
-              <h3 className="font-bold text-base sm:text-lg mb-2">Active Missions:</h3>
+              <h3 className="font-bold text-lg mb-2">Active Missions:</h3>
               {missions.length > 0 ? (
                 missions.map((mission, index) => (
-                  <div key={index} className="bg-gray-700 rounded p-2 mb-2 text-sm sm:text-base">
+                  <div key={index} className="bg-gray-800 rounded p-3 mb-2">
                     <p>{mission.type} - {mission.duration} turns left</p>
                   </div>
                 ))
               ) : (
-                <p className="text-sm sm:text-base">No active missions</p>
+                <p>No active missions</p>
               )}
             </div>
           </div>
           
-          <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
-            <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Disasters</h2>
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Disasters</h2>
             {disasters.length > 0 ? (
               disasters.map((disaster, index) => (
-                <div key={index} className="bg-red-900 p-2 sm:p-3 rounded mb-2 sm:mb-3 text-sm sm:text-base">
+                <div key={index} className="bg-red-900 p-3 rounded mb-2">
                   <p className="font-bold">{disaster.type} - {disaster.duration} turns left</p>
                   <p>Health: {disaster.effect.health}/turn, Happiness: {disaster.effect.happiness}/turn</p>
                 </div>
               ))
             ) : (
-              <p className="text-sm sm:text-base">No active disasters</p>
+              <p>No active disasters</p>
             )}
           </div>
         </div>
 
-        <div className="mt-4 sm:mt-6 bg-gray-800 bg-opacity-75 p-3 sm:p-4 rounded-lg shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+        <div className="mt-6 bg-gray-900 bg-opacity-75 p-4 rounded-lg shadow-lg border border-blue-500 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
           <div className="w-full sm:w-auto">
-            <p className="font-bold text-blue-300 mb-1 sm:mb-2 text-sm sm:text-base">Event Log:</p>
-            <p className="text-sm sm:text-base">{message}</p>
+            <p className="font-bold text-blue-300 mb-2">Event Log:</p>
+            <p>{message}</p>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
             <button 
-              className="px-3 py-1 sm:px-4 sm:py-2 bg-yellow-500 hover:bg-yellow-400 rounded text-black font-bold text-xs sm:text-sm w-full sm:w-auto"
+              className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 rounded text-black font-bold w-full sm:w-auto"
               onClick={() => setShowTutorial(true)}
             >
               Show Tutorial
             </button>
             <button 
-              className="px-4 py-2 sm:px-6 sm:py-3 bg-blue-500 hover:bg-blue-400 rounded text-base sm:text-lg font-bold transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-400 rounded text-lg font-bold transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
               onClick={nextTurn}
             >
               Next Turn
