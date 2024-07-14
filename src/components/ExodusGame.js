@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import GameIcons from './GameIcons';
-import 'tailwindcss/tailwind.css';
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = [
@@ -520,8 +519,8 @@ const ExodusGame = () => {
                 </div>
               ))
             ) : (
-              <p>No active disasters</p>
-            )}
+                <p>No active disasters</p>
+              )}
           </div>
         </div>
 
