@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import GameIcons from './gameIcons';
+import GameIcons from './GameIcons';
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = ['oxygen', 'food', 'energy', 'habitat', 'research', 'defense', 'medical', 'entertainment'];
