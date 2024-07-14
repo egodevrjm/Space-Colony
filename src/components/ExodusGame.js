@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import GameIcons from './GameIcons';
+import GameIcons from './GameIcons'; // Ensure this is the correct path
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = ['oxygen', 'food', 'energy', 'habitat', 'research', 'defense', 'medical', 'entertainment'];
