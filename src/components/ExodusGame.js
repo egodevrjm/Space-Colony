@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import GameIcons from './gameIcons';
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = ['oxygen', 'food', 'energy', 'habitat', 'research', 'defense', 'medical', 'entertainment'];
@@ -15,99 +16,102 @@ const TECHS = {
 };
 
 const EVENTS = [
-    { name: 'Meteor Shower', effect: { oxygen: -20, energy: -15, buildings: 'damage' }, symbol: '☄️' },
-    { name: 'Solar Flare', effect: { energy: 30, electronics: 'damage' }, symbol: '☀️' },
-    { name: 'Alien Microbes', effect: { food: -25, health: -10 }, symbol: '🦠' },
-    { name: 'Resource Cache', effect: { oxygen: 15, food: 15, energy: 15 }, symbol: '📦' },
-    { name: 'Cosmic Storm', effect: { oxygen: -10, energy: -10, morale: -5 }, symbol: '🌪️' },
-    { name: 'Alien Artifact Discovery', effect: { research: 50, morale: 10 }, symbol: '🏺' },
-  ];
+  { name: 'Meteor Shower', effect: { oxygen: -20, energy: -15, buildings: 'damage' }, symbol: '☄️' },
+  { name: 'Solar Flare', effect: { energy: 30, electronics: 'damage' }, symbol: '☀️' },
+  { name: 'Alien Microbes', effect: { food: -25, health: -10 }, symbol: '🦠' },
+  { name: 'Resource Cache', effect: { oxygen: 15, food: 15, energy: 15 }, symbol: '📦' },
+  { name: 'Cosmic Storm', effect: { oxygen: -10, energy: -10, morale: -5 }, symbol: '🌪️' },
+  { name: 'Alien Artifact Discovery', effect: { research: 50, morale: 10 }, symbol: '🏺' },
+];
 
 const getBuildingIcon = (building) => {
-  const icons = {
-    oxygen: '💨', food: '🍎', energy: '⚡', habitat: '🏠', research: '🧪',
-    defense: '🛡️', medical: '🏥', entertainment: '🎭'
-  };
-  return icons[building] || '❓';
+  return GameIcons[building] || GameIcons.empty;
+};
+
+const getTerrainIcon = (cell) => {
+  if (cell === null) {
+    const terrainTypes = ['empty', 'rocky', 'water'];
+    const randomTerrain = terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
+    return GameIcons[randomTerrain];
+  }
+  return getBuildingIcon(cell);
 };
 
 const ExodusGame = () => {
-    const [resources, setResources] = useState({ oxygen: 100, food: 100, energy: 100, research: 0, materials: 50 });
-    const [colonists, setColonists] = useState({ total: 5, scientists: 0, engineers: 0, medics: 0 });
-    const [grid, setGrid] = useState(Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null)));
-    const [turn, setTurn] = useState(1);
-    const [selectedBuilding, setSelectedBuilding] = useState(null);
-    const [currentPhase, setCurrentPhase] = useState(0);
-    const [message, setMessage] = useState('Welcome to Exodus: The Last Colony');
-    const [techs, setTechs] = useState(Object.fromEntries(Object.keys(TECHS).map(tech => [tech, false])));
-    const [happiness, setHappiness] = useState(100);
-    const [health, setHealth] = useState(100);
-    const [showTechInfo, setShowTechInfo] = useState(false);
-    const [missions, setMissions] = useState([]);
-    const [disasters, setDisasters] = useState([]);
+  const [resources, setResources] = useState({ oxygen: 100, food: 100, energy: 100, research: 0, materials: 50 });
+  const [colonists, setColonists] = useState({ total: 5, scientists: 0, engineers: 0, medics: 0 });
+  const [grid, setGrid] = useState(Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null)));
+  const [turn, setTurn] = useState(1);
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [currentPhase, setCurrentPhase] = useState(0);
+  const [message, setMessage] = useState('Welcome to Exodus: The Last Colony');
+  const [techs, setTechs] = useState(Object.fromEntries(Object.keys(TECHS).map(tech => [tech, false])));
+  const [happiness, setHappiness] = useState(100);
+  const [health, setHealth] = useState(100);
+  const [showTechInfo, setShowTechInfo] = useState(false);
+  const [missions, setMissions] = useState([]);
+  const [disasters, setDisasters] = useState([]);
+  const [showTutorial, setShowTutorial] = useState(true);
+  const [tutorialStep, setTutorialStep] = useState(0);
+  const [showResourceDetails, setShowResourceDetails] = useState(false);
 
-    const [showTutorial, setShowTutorial] = useState(true);
-    const [tutorialStep, setTutorialStep] = useState(0);
-    const [showResourceDetails, setShowResourceDetails] = useState(false);
+  const tutorialSteps = [
+    "Welcome to Exodus: The Last Colony! Your mission is to build a thriving colony on this alien planet.",
+    "Start by placing oxygen generators, food farms, and energy plants to sustain your colonists.",
+    "Recruit more colonists to grow your colony, but make sure you have enough resources to support them.",
+    "Research new technologies to improve your colony's efficiency and unlock new buildings.",
+    "Be prepared for random events and disasters. They can help or harm your colony.",
+    "Complete missions to gain additional resources and advance through the game phases.",
+    "Good luck, Administrator! The fate of humanity rests in your hands."
+  ];
 
-    
-    const tutorialSteps = [
-        "Welcome to Exodus: The Last Colony! Your mission is to build a thriving colony on this alien planet.",
-        "Start by placing oxygen generators, food farms, and energy plants to sustain your colonists.",
-        "Recruit more colonists to grow your colony, but make sure you have enough resources to support them.",
-        "Research new technologies to improve your colony's efficiency and unlock new buildings.",
-        "Be prepared for random events and disasters. They can help or harm your colony.",
-        "Complete missions to gain additional resources and advance through the game phases.",
-        "Good luck, Administrator! The fate of humanity rests in your hands."
-      ];
-    
-      const nextTutorialStep = () => {
-        if (tutorialStep < tutorialSteps.length - 1) {
-          setTutorialStep(tutorialStep + 1);
-        } else {
-          setShowTutorial(false);
-        }
-      };
-    
-      const calculateResourceProduction = () => {
-        return {
-          oxygen: calculateProduction('oxygen'),
-          food: calculateProduction('food'),
-          energy: calculateProduction('energy'),
-          research: calculateProduction('research'),
-          materials: calculateProduction('materials')
-        };
-      };
-    
-      const calculateResourceConsumption = () => {
-        return {
-          oxygen: calculateConsumption('oxygen'),
-          food: calculateConsumption('food'),
-          energy: calculateConsumption('energy'),
-          materials: calculateConsumption('materials')
-        };
-      };
-  
-    const nextTurn = () => {
-      setTurn(prevTurn => prevTurn + 1);
-      updateResources();
-      handleRandomEvent();
-      checkPhaseProgression();
-      updateHappiness();
-      updateHealth();
-      manageMissions();
-      manageDisasters();
+  const nextTutorialStep = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(tutorialStep + 1);
+    } else {
+      setShowTutorial(false);
+    }
+  };
+
+  const calculateResourceProduction = () => {
+    return {
+      oxygen: calculateProduction('oxygen'),
+      food: calculateProduction('food'),
+      energy: calculateProduction('energy'),
+      research: calculateProduction('research'),
+      materials: calculateProduction('materials')
     };
-  
-    const updateResources = () => {
-      setResources(prev => ({
-        oxygen: Math.max(0, prev.oxygen + calculateProduction('oxygen') - calculateConsumption('oxygen')),
-        food: Math.max(0, prev.food + calculateProduction('food') - calculateConsumption('food')),
-        energy: Math.max(0, prev.energy + calculateProduction('energy') - calculateConsumption('energy')),
-        research: prev.research + calculateProduction('research'),
-        materials: prev.materials + calculateProduction('materials') - calculateConsumption('materials'),
-      }));
+  };
+
+  const calculateResourceConsumption = () => {
+    return {
+      oxygen: calculateConsumption('oxygen'),
+      food: calculateConsumption('food'),
+      energy: calculateConsumption('energy'),
+      materials: calculateConsumption('materials')
     };
+  };
+
+  const nextTurn = () => {
+    setTurn(prevTurn => prevTurn + 1);
+    updateResources();
+    handleRandomEvent();
+    checkPhaseProgression();
+    updateHappiness();
+    updateHealth();
+    manageMissions();
+    manageDisasters();
+  };
+
+  const updateResources = () => {
+    setResources(prev => ({
+      oxygen: Math.max(0, prev.oxygen + calculateProduction('oxygen') - calculateConsumption('oxygen')),
+      food: Math.max(0, prev.food + calculateProduction('food') - calculateConsumption('food')),
+      energy: Math.max(0, prev.energy + calculateProduction('energy') - calculateConsumption('energy')),
+      research: prev.research + calculateProduction('research'),
+      materials: prev.materials + calculateProduction('materials') - calculateConsumption('materials'),
+    }));
+  };
 
   const calculateProduction = (resourceType) => {
     let production = grid.flat().filter(cell => cell === resourceType).length * 2;
@@ -123,10 +127,10 @@ const ExodusGame = () => {
   const calculateConsumption = (resourceType) => {
     let consumption = colonists.total;
     if (resourceType === 'energy') {
-      consumption += grid.flat().filter(cell => cell !== null).length; // Buildings consume energy
+      consumption += grid.flat().filter(cell => cell !== null).length;
     }
     if (techs.advancedRecycling) {
-      consumption *= 0.8; // 20% reduction in consumption
+      consumption *= 0.8;
     }
     return Math.floor(consumption);
   };
@@ -149,7 +153,7 @@ const ExodusGame = () => {
   };
 
   const handleRandomEvent = () => {
-    if (Math.random() < 0.15) { // Increased chance since it's per turn now
+    if (Math.random() < 0.15) {
       const event = EVENTS[Math.floor(Math.random() * EVENTS.length)];
       setResources(prev => {
         const newResources = { ...prev };
@@ -285,7 +289,7 @@ const ExodusGame = () => {
       return updatedDisasters.filter(disaster => disaster.duration > 0);
     });
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-2 sm:p-4 md:p-6 flex flex-col overflow-auto bg-[url('/space-background.jpg')] bg-cover bg-center">
       <div className="absolute inset-0 bg-black opacity-50"></div>
@@ -293,8 +297,7 @@ const ExodusGame = () => {
         <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-center text-blue-300 tracking-wider">
           Exodus: The Last Colony
         </h1>
-        
-        {/* Improved Tutorial Overlay */}
+
         {showTutorial && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-800 p-4 sm:p-6 md:p-8 rounded-lg max-w-lg sm:max-w-xl md:max-w-2xl w-full">
@@ -319,7 +322,7 @@ const ExodusGame = () => {
             </div>
           </div>
         )}
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Colony Status</h2>
@@ -384,17 +387,17 @@ const ExodusGame = () => {
                 row.map((cell, colIndex) => (
                   <div
                     key={`${rowIndex}-${colIndex}`}
-                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-blue-700 text-xl sm:text-2xl md:text-3xl transition-all duration-200 transform hover:scale-110"
+                    className="aspect-square border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-all duration-200 transform hover:scale-110"
                     onClick={() => placeBuilding(rowIndex, colIndex)}
                   >
-                    {getBuildingIcon(cell)}
+                    {getTerrainIcon(cell)}
                   </div>
                 ))
               ))}
             </div>
           </div>
         </div>
-  
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Research</h2>
@@ -466,7 +469,7 @@ const ExodusGame = () => {
             </div>
           </div>
         </div>
-  
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
           <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Missions</h2>
@@ -485,7 +488,7 @@ const ExodusGame = () => {
               </button>
             </div>
             <div>
-            <h3 className="font-bold text-base sm:text-lg mb-2">Active Missions:</h3>
+              <h3 className="font-bold text-base sm:text-lg mb-2">Active Missions:</h3>
               {missions.length > 0 ? (
                 missions.map((mission, index) => (
                   <div key={index} className="bg-gray-700 rounded p-2 mb-2 text-sm sm:text-base">
