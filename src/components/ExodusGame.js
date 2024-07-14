@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import GameIcons from './GameIcons'; // Ensure this is the correct path
+import GameIcons from './GameIcons';
 
 const GRID_SIZE = 10;
-const BUILDING_TYPES = ['oxygen', 'food', 'energy', 'habitat', 'research', 'defense', 'medical', 'entertainment'];
+const BUILDING_TYPES = [
+  { type: 'oxygen', cost: 20 },
+  { type: 'food', cost: 20 },
+  { type: 'energy', cost: 20 },
+  { type: 'habitat', cost: 30 },
+  { type: 'research', cost: 50 },
+  { type: 'defense', cost: 40 },
+  { type: 'medical', cost: 50 },
+  { type: 'entertainment', cost: 60 }
+];
 const PHASES = ['Establishment', 'Expansion', 'Crisis', 'Preparation', 'Final Stand'];
 const TECHS = {
   advancedFarming: { name: 'Advanced Farming', effect: 'Increases food production by 50%', cost: 50 },
@@ -132,19 +141,22 @@ const ExodusGame = () => {
   };
 
   const placeBuilding = (row, col) => {
-    if (selectedBuilding && resources.materials >= 20) {
-      const cost = techs.rapidConstruction ? 15 : 20;
-      const newGrid = [...grid];
-      newGrid[row] = [...newGrid[row]];
-      newGrid[row][col] = selectedBuilding;
-      setGrid(newGrid);
-      setResources(prev => ({
-        ...prev,
-        materials: prev.materials - cost
-      }));
-      setMessage(`${selectedBuilding.charAt(0).toUpperCase() + selectedBuilding.slice(1)} building placed!`);
-    } else {
-      setMessage('Not enough materials to build!');
+    if (selectedBuilding) {
+      const building = BUILDING_TYPES.find(b => b.type === selectedBuilding);
+      const cost = techs.rapidConstruction ? building.cost * 0.75 : building.cost;
+      if (resources.materials >= cost) {
+        const newGrid = [...grid];
+        newGrid[row] = [...newGrid[row]];
+        newGrid[row][col] = selectedBuilding;
+        setGrid(newGrid);
+        setResources(prev => ({
+          ...prev,
+          materials: prev.materials - cost
+        }));
+        setMessage(`${selectedBuilding.charAt(0).toUpperCase() + selectedBuilding.slice(1)} building placed!`);
+      } else {
+        setMessage('Not enough materials to build!');
+      }
     }
   };
 
@@ -334,7 +346,7 @@ const ExodusGame = () => {
               {Object.entries(resources).map(([resource, amount]) => (
                 <div key={resource} className="bg-gray-700 rounded-lg p-2 sm:p-3 flex items-center justify-between">
                   <span className="text-xl sm:text-2xl mr-2">{getBuildingIcon(resource)}</span>
-                  <span className="text-base sm:text-lg">{amount}</span>
+                  <span className="text-base sm:text-lg">{resource.charAt(0).toUpperCase() + resource.slice(1)}: {amount}</span>
                 </div>
               ))}
             </div>
@@ -348,11 +360,11 @@ const ExodusGame = () => {
               <div className="mt-4 bg-gray-700 rounded-lg p-3 sm:p-4 text-sm sm:text-base">
                 <h3 className="font-bold mb-2">Production per Turn:</h3>
                 {Object.entries(calculateResourceProduction()).map(([resource, amount]) => (
-                  <p key={resource}>{resource}: +{amount}</p>
+                  <p key={resource}>{resource.charAt(0).toUpperCase() + resource.slice(1)}: +{amount}</p>
                 ))}
                 <h3 className="font-bold mt-4 mb-2">Consumption per Turn:</h3>
                 {Object.entries(calculateResourceConsumption()).map(([resource, amount]) => (
-                  <p key={resource}>{resource}: -{amount}</p>
+                  <p key={resource}>{resource.charAt(0).toUpperCase() + resource.slice(1)}: -{amount}</p>
                 ))}
               </div>
             )}
@@ -422,14 +434,14 @@ const ExodusGame = () => {
           <div className="bg-gray-800 bg-opacity-75 rounded-lg p-4 sm:p-6 shadow-lg border border-blue-500 backdrop-filter backdrop-blur-sm">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 text-blue-300">Build</h2>
             <div className="grid grid-cols-2 gap-2 sm:gap-3">
-              {BUILDING_TYPES.map(type => (
+              {BUILDING_TYPES.map(({ type, cost }) => (
                 <button 
                   key={type}
                   className={`px-2 py-1 sm:px-3 sm:py-2 rounded flex items-center justify-center ${selectedBuilding === type ? 'bg-blue-600' : 'bg-blue-500'} hover:bg-blue-400 transition-all duration-200 transform hover:scale-105 text-xs sm:text-sm`}
                   onClick={() => setSelectedBuilding(type)}
                 >
                   <span className="mr-1 sm:mr-2 text-xl sm:text-2xl">{getBuildingIcon(type)}</span>
-                  <span className="capitalize">{type}</span>
+                  <span className="capitalize">{type} ({cost} materials)</span>
                 </button>
               ))}
             </div>
