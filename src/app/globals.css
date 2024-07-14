@@ -1,45 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 229, 231, 235;
-  --background-rgb: 15, 23, 42;
-  --primary-color: 30, 58, 138;
-  --secondary-color: 37, 99, 235;
-  --accent-color: 245, 158, 11;
+  --foreground-rgb: 255, 255, 255;
+  --background-start-rgb: 10, 10, 30;
+  --background-end-rgb: 0, 0, 0;
 }
 
 body {
-  font-family: 'Orbitron', sans-serif;
   color: rgb(var(--foreground-rgb));
-  background-color: rgb(var(--background-rgb));
+  background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--background-end-rgb))
+    )
+    rgb(var(--background-start-rgb));
+  font-family: 'Roboto', sans-serif;
 }
 
-h1, h2, h3, h4, h5, h6 {
-  color: rgb(var(--secondary-color));
-}
-
-button {
-  background-color: rgb(var(--primary-color));
-  color: rgb(var(--foreground-rgb));
-  transition: background-color 0.3s;
-}
-
-button:hover {
-  background-color: rgb(var(--secondary-color));
-}
-
-.bg-primary {
-  background-color: rgb(var(--primary-color));
-}
-
-.bg-secondary {
-  background-color: rgb(var(--secondary-color));
-}
-
-.text-accent {
-  color: rgb(var(--accent-color));
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }

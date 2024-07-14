@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GameIcons from './GameIcons';
+import 'tailwindcss/tailwind.css';
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = [
