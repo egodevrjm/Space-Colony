@@ -300,7 +300,7 @@ const ExodusGame = () => {
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center text-white p-6 flex flex-col overflow-auto relative" style={{ backgroundImage: "url('/path-to-your-background-image.jpg')" }}>
+    <div className="min-h-screen bg-cover bg-center text-white p-6 flex flex-col overflow-auto relative" style={{ backgroundImage: "url('/space-background.jpeg')" }}>
       <div className="absolute inset-0 bg-black opacity-70"></div>
       <div className="relative z-10 w-full max-w-7xl mx-auto">
         <h1 className="text-5xl font-bold mb-6 text-center text-blue-300 tracking-wider">
