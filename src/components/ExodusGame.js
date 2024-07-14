@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GameIcons from './GameIcons';
+// Removed import 'tailwindcss/tailwind.css'; since it's already globally configured
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = [
@@ -76,6 +77,10 @@ const ExodusGame = () => {
     } else {
       setShowTutorial(false);
     }
+  };
+
+  const closeTutorial = () => {
+    setShowTutorial(false);
   };
 
   const calculateResourceProduction = () => {
@@ -309,7 +314,15 @@ const ExodusGame = () => {
         {showTutorial && (
           <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-800 p-8 rounded-lg max-w-2xl w-full shadow-xl">
-              <h2 className="text-2xl font-bold mb-4">Tutorial</h2>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Tutorial</h2>
+                <button 
+                  className="text-red-500 text-xl font-bold hover:text-red-400"
+                  onClick={closeTutorial}
+                >
+                  ✖
+                </button>
+              </div>
               <p className="mb-4">{tutorialSteps[tutorialStep]}</p>
               <div className="flex justify-between items-center">
                 <button 
@@ -519,8 +532,8 @@ const ExodusGame = () => {
                 </div>
               ))
             ) : (
-                <p>No active disasters</p>
-              )}
+              <p>No active disasters</p>
+            )}
           </div>
         </div>
 
