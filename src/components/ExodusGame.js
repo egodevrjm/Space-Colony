@@ -1,17 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import GameIcons from './GameIcons';
-import 'tailwindcss/tailwind.css';
-
-import ColonyStatus from './ColonyStatus';
-import ColonyMap from './ColonyMap';
-import ResourceDetails from './ResourceDetails';
-import Tutorial from './Tutorial';
-import Research from './Research';
-import Build from './Build';
-import RecruitColonists from './RecruitColonists';
-import Missions from './Missions';
-import Disasters from './Disasters';
-import EventLog from './EventLog';
+// Removed import 'tailwindcss/tailwind.css'; since it's already globally configured
 
 const GRID_SIZE = 10;
 const BUILDING_TYPES = [
@@ -50,6 +39,10 @@ const getRandomTerrain = () => {
   return terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
 };
 
+const getBuildingIcon = (building) => {
+  return GameIcons[building] || GameIcons.empty;
+};
+
 const ExodusGame = () => {
   const [resources, setResources] = useState({ oxygen: 100, food: 100, energy: 100, research: 0, materials: 50 });
   const [colonists, setColonists] = useState({ total: 5, scientists: 0, engineers: 0, medics: 0 });
@@ -77,6 +70,37 @@ const ExodusGame = () => {
     "Complete missions to gain additional resources and advance through the game phases.",
     "Good luck, Administrator! The fate of humanity rests in your hands."
   ];
+
+  const nextTutorialStep = () => {
+    if (tutorialStep < tutorialSteps.length - 1) {
+      setTutorialStep(tutorialStep + 1);
+    } else {
+      setShowTutorial(false);
+    }
+  };
+
+  const closeTutorial = () => {
+    setShowTutorial(false);
+  };
+
+  const calculateResourceProduction = () => {
+    return {
+      oxygen: calculateProduction('oxygen'),
+      food: calculateProduction('food'),
+      energy: calculateProduction('energy'),
+      research: calculateProduction('research'),
+      materials: calculateProduction('materials')
+    };
+  };
+
+  const calculateResourceConsumption = () => {
+    return {
+      oxygen: calculateConsumption('oxygen'),
+      food: calculateConsumption('food'),
+      energy: calculateConsumption('energy'),
+      materials: calculateConsumption('materials')
+    };
+  };
 
   const nextTurn = () => {
     setTurn(prevTurn => prevTurn + 1);
@@ -288,54 +312,251 @@ const ExodusGame = () => {
         </h1>
 
         {showTutorial && (
-          <Tutorial
-            tutorialSteps={tutorialSteps}
-            tutorialStep={tutorialStep}
-            setTutorialStep={setTutorialStep}
-            setShowTutorial={setShowTutorial}
-          />
+          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+            <div className="bg-gray-800 p-8 rounded-lg max-w-2xl w-full shadow-xl">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Tutorial</h2>
+                <button 
+                  className="text-red-500 text-xl font-bold hover:text-red-400"
+                  onClick={closeTutorial}
+                >
+                  ✖
+                </button>
+              </div>
+              <p className="mb-4">{tutorialSteps[tutorialStep]}</p>
+              <div className="flex justify-between items-center">
+                <button 
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded"
+                  onClick={() => setTutorialStep(Math.max(0, tutorialStep - 1))}
+                  disabled={tutorialStep === 0}
+                >
+                  Previous
+                </button>
+                <span>{tutorialStep + 1} / {tutorialSteps.length}</span>
+                <button 
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded"
+                  onClick={nextTutorialStep}
+                >
+                  {tutorialStep < tutorialSteps.length - 1 ? "Next" : "Start Game"}
+                </button>
+              </div>
+            </div>
+          </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-          <ColonyStatus
-            PHASES={PHASES}
-            currentPhase={currentPhase}
-            turn={turn}
-            colonists={colonists}
-            resources={resources}
-            happiness={happiness}
-            health={health}
-            showResourceDetails={showResourceDetails}
-            setShowResourceDetails={setShowResourceDetails}
-            calculateResourceProduction={calculateResourceProduction}
-            calculateResourceConsumption={calculateResourceConsumption}
-          />
-
-          <ColonyMap grid={grid} placeBuilding={placeBuilding} />
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Colony Status</h2>
+            <p className="text-lg mb-2">Phase: <span className="text-yellow-300">{PHASES[currentPhase]}</span></p>
+            <p className="text-lg mb-2">Turn: <span className="text-yellow-300">{turn}</span></p>
+            <p className="flex items-center text-lg mb-2">
+              <span className="mr-2 text-2xl">👥</span> Colonists: {colonists.total} 
+              (<span className="text-purple-300">🧑‍🔬 {colonists.scientists}</span> | 
+              <span className="text-yellow-300">🧑‍🔧 {colonists.engineers}</span> | 
+              <span className="text-red-300">🧑‍⚕️ {colonists.medics}</span>)
+            </p>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              {Object.entries(resources).map(([resource, amount]) => (
+                <div key={resource} className="bg-gray-800 rounded-lg p-4 flex items-center justify-between">
+                  <span className="text-2xl mr-2">{getBuildingIcon(resource)}</span>
+                  <span className="text-lg">{resource.charAt(0).toUpperCase() + resource.slice(1)}: {amount}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded w-full"
+              onClick={() => setShowResourceDetails(!showResourceDetails)}
+            >
+              {showResourceDetails ? "Hide" : "Show"} Resource Details
+            </button>
+            {showResourceDetails && (
+              <div className="mt-4 bg-gray-800 rounded-lg p-4">
+                <h3 className="font-bold mb-2">Production per Turn:</h3>
+                {Object.entries(calculateResourceProduction()).map(([resource, amount]) => (
+                  <p key={resource}>{resource.charAt(0).toUpperCase() + resource.slice(1)}: +{amount}</p>
+                ))}
+                <h3 className="font-bold mt-4 mb-2">Consumption per Turn:</h3>
+                {Object.entries(calculateResourceConsumption()).map(([resource, amount]) => (
+                  <p key={resource}>{resource.charAt(0).toUpperCase() + resource.slice(1)}: -{amount}</p>
+                ))}
+              </div>
+            )}
+            <div className="mt-4 space-y-2">
+              <div>
+                <p className="flex items-center mb-1">
+                  <span className="mr-2 text-2xl">😊</span> Happiness: 
+                </p>
+                <div className="w-full bg-gray-700 rounded-full h-4">
+                  <div className="bg-green-600 h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${happiness}%`}}></div>
+                </div>
+              </div>
+              <div>
+                <p className="flex items-center mb-1">
+                  <span className="mr-2 text-2xl">❤️</span> Health: 
+                </p>
+                <div className="w-full bg-gray-700 rounded-full h-4">
+                  <div className="bg-red-600 h-4 rounded-full transition-all duration-500 ease-in-out" style={{width: `${health}%`}}></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="lg:col-span-2 bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Colony Map</h2>
+            <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-1">
+              {grid.map((row, rowIndex) => (
+                row.map((cell, colIndex) => (
+                  <div
+                    key={`${rowIndex}-${colIndex}`}
+                    className="aspect-square border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-all duration-200 transform hover:scale-110"
+                    onClick={() => placeBuilding(rowIndex, colIndex)}
+                  >
+                    {getBuildingIcon(cell)}
+                  </div>
+                ))
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-          <Research
-            TECHS={TECHS}
-            techs={techs}
-            researchTech={researchTech}
-            showTechInfo={showTechInfo}
-            setShowTechInfo={setShowTechInfo}
-          />
-          <Build
-            BUILDING_TYPES={BUILDING_TYPES}
-            selectedBuilding={selectedBuilding}
-            setSelectedBuilding={setSelectedBuilding}
-          />
-          <RecruitColonists addColonist={addColonist} />
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Research</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {Object.entries(TECHS).map(([tech, { name, effect, cost }]) => (
+                <button 
+                  key={tech}
+                  className={`px-3 py-2 rounded ${techs[tech] ? 'bg-green-600' : 'bg-green-500'} hover:bg-green-400 text-left transition-all duration-200 transform hover:scale-105`}
+                  onClick={() => researchTech(tech)}
+                  disabled={techs[tech]}
+                >
+                  <div className="font-bold">{name}</div>
+                  <div>{cost} RP</div>
+                  {showTechInfo && <p className="mt-1">{effect}</p>}
+                </button>
+              ))}
+            </div>
+            <button 
+              className="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-400 rounded transition-all duration-200 transform hover:scale-105 w-full"
+              onClick={() => setShowTechInfo(!showTechInfo)}
+            >
+              {showTechInfo ? '🔼 Hide' : '🔽 Show'} Tech Info
+            </button>
+          </div>
+          
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Build</h2>
+            <div className="grid grid-cols-2 gap-3">
+              {BUILDING_TYPES.map(({ type, cost }) => (
+                <button 
+                  key={type}
+                  className={`px-3 py-2 rounded flex items-center justify-center ${selectedBuilding === type ? 'bg-blue-600' : 'bg-blue-500'} hover:bg-blue-400 transition-all duration-200 transform hover:scale-105`}
+                  onClick={() => setSelectedBuilding(type)}
+                >
+                  <span className="mr-2 text-2xl">{getBuildingIcon(type)}</span>
+                  <span className="capitalize">{type} ({cost} materials)</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Recruit Colonists</h2>
+            <div className="space-y-3">
+              <button 
+                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-400 transition-all duration-200 transform hover:scale-105 w-full"
+                onClick={() => addColonist('general')}
+              >
+                Add General Colonist (10 food, 10 oxygen)
+              </button>
+              <button 
+                className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-400 transition-all duration-200 transform hover:scale-105 w-full"
+                onClick={() => addColonist('scientist')}
+              >
+                Add Scientist (15 food, 15 oxygen)
+              </button>
+              <button 
+                className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-400 transition-all duration-200 transform hover:scale-105 w-full"
+                onClick={() => addColonist('engineer')}
+              >
+                Add Engineer (15 food, 15 oxygen)
+              </button>
+              <button 
+                className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-400 transition-all duration-200 transform hover:scale-105 w-full"
+                onClick={() => addColonist('medic')}
+              >
+                Add Medic (15 food, 15 oxygen)
+              </button>
+            </div>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          <Missions missions={missions} startMission={startMission} />
-          <Disasters disasters={disasters} />
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Missions</h2>
+            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 mb-4">
+              <button 
+                className="flex-1 bg-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-400 transition-all duration-200 transform hover:scale-105"
+                onClick={() => startMission('Exploration')}
+              >
+                Start Exploration Mission
+              </button>
+              <button 
+                className="flex-1 bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-400 transition-all duration-200 transform hover:scale-105"
+                onClick={() => startMission('Research')}
+              >
+                Start Research Mission
+              </button>
+            </div>
+            <div>
+              <h3 className="font-bold text-lg mb-2">Active Missions:</h3>
+              {missions.length > 0 ? (
+                missions.map((mission, index) => (
+                  <div key={index} className="bg-gray-800 rounded p-3 mb-2">
+                    <p>{mission.type} - {mission.duration} turns left</p>
+                  </div>
+                ))
+              ) : (
+                <p>No active missions</p>
+              )}
+            </div>
+          </div>
+          
+          <div className="bg-gray-900 bg-opacity-75 rounded-lg p-6 shadow-lg border border-blue-500">
+            <h2 className="text-2xl font-bold mb-4 text-blue-300">Disasters</h2>
+            {disasters.length > 0 ? (
+              disasters.map((disaster, index) => (
+                <div key={index} className="bg-red-900 p-3 rounded mb-2">
+                  <p className="font-bold">{disaster.type} - {disaster.duration} turns left</p>
+                  <p>Health: {disaster.effect.health}/turn, Happiness: {disaster.effect.happiness}/turn</p>
+                </div>
+              ))
+            ) : (
+              <p>No active disasters</p>
+            )}
+          </div>
         </div>
 
-        <EventLog message={message} nextTurn={nextTurn} />
+        <div className="mt-6 bg-gray-900 bg-opacity-75 p-4 rounded-lg shadow-lg border border-blue-500 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
+          <div className="w-full sm:w-auto">
+            <p className="font-bold text-blue-300 mb-2">Event Log:</p>
+            <p>{message}</p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+            <button 
+              className="px-4 py-2 bg-yellow-500 hover:bg-yellow-400 rounded text-black font-bold w-full sm:w-auto"
+              onClick={() => setShowTutorial(true)}
+            >
+              Show Tutorial
+            </button>
+            <button 
+              className="px-6 py-3 bg-blue-500 hover:bg-blue-400 rounded text-lg font-bold transition-all duration-200 transform hover:scale-105 w-full sm:w-auto"
+              onClick={nextTurn}
+            >
+              Next Turn
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
