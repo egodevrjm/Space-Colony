@@ -24,23 +24,19 @@ const EVENTS = [
   { name: 'Alien Artifact Discovery', effect: { research: 50, morale: 10 }, symbol: '🏺' },
 ];
 
-const getBuildingIcon = (building) => {
-  return GameIcons[building] || GameIcons.empty;
+const getRandomTerrain = () => {
+  const terrainTypes = ['empty', 'rocky', 'water'];
+  return terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
 };
 
-const getTerrainIcon = (cell) => {
-  if (cell === null) {
-    const terrainTypes = ['empty', 'rocky', 'water'];
-    const randomTerrain = terrainTypes[Math.floor(Math.random() * terrainTypes.length)];
-    return GameIcons[randomTerrain];
-  }
-  return getBuildingIcon(cell);
+const getBuildingIcon = (building) => {
+  return GameIcons[building] || GameIcons.empty;
 };
 
 const ExodusGame = () => {
   const [resources, setResources] = useState({ oxygen: 100, food: 100, energy: 100, research: 0, materials: 50 });
   const [colonists, setColonists] = useState({ total: 5, scientists: 0, engineers: 0, medics: 0 });
-  const [grid, setGrid] = useState(Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null)));
+  const [grid, setGrid] = useState(Array(GRID_SIZE).fill().map(() => Array(GRID_SIZE).fill(null).map(() => getRandomTerrain())));
   const [turn, setTurn] = useState(1);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [currentPhase, setCurrentPhase] = useState(0);
@@ -390,7 +386,7 @@ const ExodusGame = () => {
                     className="aspect-square border border-gray-600 flex items-center justify-center cursor-pointer hover:bg-blue-700 transition-all duration-200 transform hover:scale-110"
                     onClick={() => placeBuilding(rowIndex, colIndex)}
                   >
-                    {getTerrainIcon(cell)}
+                    {getBuildingIcon(cell)}
                   </div>
                 ))
               ))}
